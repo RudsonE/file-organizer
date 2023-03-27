@@ -7,6 +7,9 @@ class Files:
     def __init__(self):
         
         self.files_extensions = json.load(open('./files_extensions.json'))
+        self.image_found = self.files_extensions["image"]
+        self.video_found = self.files_extensions["video"]
+        self.compressed_found = self.files_extensions["compressed"]
     
     def detect_file_type(self, dir):
         
@@ -18,23 +21,20 @@ class Files:
                 pass
             else:
                 ext = name.split('.')[1]
-                image_found = self.files_extensions["image"]
-                video_found = self.files_extensions["video"]
-                compressed_found = self.files_extensions["compressed"]
                 
                 #check file type
-                if ext in image_found:
+                if ext in self.image_found:
                     
                     self.move_file(f"{dir}/{name}",  dir + "./images")
-                elif ext in video_found:
+                elif ext in self.video_found:
                     
                     self.move_file(f"{dir}/{name}",  dir + "./videos")
-                elif ext in compressed_found:
+                elif ext in self.compressed_found:
                     
                     self.move_file(f"{dir}/{name}",  dir + "./compressed")
                     
                 #unknown file type action
-                elif ext not in image_found or ext not in video_found:
+                elif ext not in self.image_found or ext not in self.video_found:
                     print(f"Unknown file type: {name} | Type: {ext}")
                 else:
                     print("Not files found")
