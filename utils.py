@@ -7,39 +7,41 @@ class Files:
     def __init__(self):
         
         self.files_extensions = json.load(open('./files_extensions.json'))
-        self.image_found = self.files_extensions["image"]
-        self.video_found = self.files_extensions["video"]
-        self.compressed_found = self.files_extensions["compressed"]
+        self.file_type = list(self.files_extensions.keys())
+        self.terminal_columns = os.get_terminal_size().columns
     
     def detect_file_type(self, dir):
         
         files = os.listdir(dir)
-        file_count = len(files)
-        for name in files:
-            #check if found name is a file
-            if os.path.isdir(os.path.join(dir, name)):
+        found_files = []
+        total_valid_files = 0
+        for file in files:
+            if os.path.isdir(os.path.join(dir, file)):
                 pass
             else:
-                ext = name.split('.')[1]
+                found_files.append(file)
+            
+        for name in files:
+            ext = ""
+            for type in self.file_type:
                 
-                #check file type
-                if ext in self.image_found:
+                if "." in name:
+                    #check if found name is a file
+                    ext = name.split('.')[1]
+                    if ext in self.files_extensions[type]:
+                        total_valid_files = total_valid_files + 1
+                        print(f"Found: {name} | Extension: {ext} | Type: {type}")
+                        self.move_file(f"{dir}/{name}", f"{dir}/{type}")
                     
-                    self.move_file(f"{dir}/{name}",  dir + "./images")
-                elif ext in self.video_found:
-                    
-                    self.move_file(f"{dir}/{name}",  dir + "./videos")
-                elif ext in self.compressed_found:
-                    
-                    self.move_file(f"{dir}/{name}",  dir + "./compressed")
-                    
-                #unknown file type action
-                elif ext not in self.image_found or ext not in self.video_found:
-                    print(f"Unknown file type: {name} | Type: {ext}")
                 else:
-                    print("Not files found")
+                    pass
+        if len(found_files) - (len(found_files) - total_valid_files) == 0:
+                print("No files moved")
                     
-        print(f"Done, {file_count} files found")
+        print("\n")
+        print("=" * self.terminal_columns)      
+        print(f"Done, {len(found_files)} files found, {len(found_files) - total_valid_files} is unknown type.")
+        print("=" * self.terminal_columns)    
         
     #move files to destination directory
     def move_file(self, file, dir):
